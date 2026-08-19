@@ -21,8 +21,8 @@
   每期一份，附時期背景、核心心法、該期特有戰術、自我檢討錄與金句。進度表見
   [`methodology/README.md`](methodology/README.md)。
 - **[🎙 逐字稿原文](transcripts/)**——想查某條心法的上下文，每條都附集數出處
-  （如 `EP675, EP662`），可回 `transcripts/EPxxx.md` 對照原話。
-  最新一集直接點：**🆕 <!--EP_LATEST-->[EP688](transcripts/EP688.md)<!--/EP_LATEST-->**。
+  （如 `EP675, EP662`），可回 `transcripts/EPxxx-yyy/EPxxx.md` 對照原話（每 50 集一個子資料夾）。
+  最新一集直接點：**🆕 <!--EP_LATEST-->[EP688](transcripts/EP651-700/EP688.md)<!--/EP_LATEST-->**。
 - **[🗂 族群圖鑑](catalog/族群圖鑑.md)**——心法談「怎麼想」，族群圖鑑記「談過什麼」：
   把全部逐字稿裡謝孟恭反覆提及的**族群（類股主題）與其代表標的**（台股＋全球並列）
   策展成分類清單。**47 族群 / 282 標的**，每族群附別稱、市場範圍、出處集數與一句 MK 觀點，
@@ -52,7 +52,7 @@
 ## 方法論是怎麼長出來的
 
 ```
-transcripts/EPxxx.md ──►  mkh-methodology-extractor（平行精讀，5 集一批）
+transcripts/EPxxx-yyy/EPxxx.md ──►  mkh-methodology-extractor（平行精讀，5 集一批）
                               ├─►  methodology/<時期>.md   （分時期方法論）
                               └─►  methodology/核心方法論.md（跨期淬煉的核心）
 ```

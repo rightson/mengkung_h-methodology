@@ -114,9 +114,13 @@ node fallback.js --force         # 即使檔案已存在也用網站版覆寫
 
 ## 輸出
 
-- `transcripts/EP001.md` … `transcripts/EPxxx.md`：每集一份，含 YAML frontmatter
-  ＋摘要＋逐字稿。集數補零至三碼，方便依檔名排序。
-- `transcripts/README.md`：`fallback.js` 依逐字稿站資料包（涵蓋全集）自動產生的索引表。
+- `transcripts/EPxxx-yyy/EPzzz.md`：每集一份，含 YAML frontmatter＋摘要＋逐字稿。
+  每 50 集分一個子資料夾（如 `EP001-050/`、`EP051-100/` …），避免單一資料夾塞近千個檔案；
+  子資料夾與集數的對應算法統一定義在 [`lib/chunk.js`](../lib/chunk.js)，
+  `scrape.js`／`fallback.js`／`update-readme.js` 都 require 這支模組取路徑，
+  未來集數增長會自動長出新的子資料夾，不需手動調整。集數補零至三碼，方便依檔名排序。
+- `transcripts/README.md`：`fallback.js` 依逐字稿站資料包（涵蓋全集）自動產生的索引表，
+  連結已依子資料夾產生（如 `[EP1](EP001-050/EP001.md)`）。
 
 兩支程式都零外部依賴，只用 Node.js 18+ 內建的 `fetch` / `zlib` / `FormData`。
 

@@ -43,6 +43,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { epPath } = require('./lib/chunk');
 
 // 《股癌》Gooaye 在 Apple Podcasts 的 collectionId；用來向 iTunes 查目前的 feedUrl，
 // 查不到時退回已知的 SoundOn RSS。
@@ -175,10 +176,6 @@ async function transcribeAudio(cfg, audioUrl) {
 }
 
 // ── Markdown 產生 ───────────────────────────────────────────────────────────
-function epId(n) {
-  return String(n).padStart(3, '0');
-}
-
 function yamlStr(s) {
   return '"' + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
 }
@@ -256,7 +253,7 @@ async function main() {
 
   // 挑出需要補的缺集（由新到舊，最多 limit 集）
   const missing = items
-    .filter((it) => needsFill(path.join(opts.out, `EP${epId(it.n)}.md`)))
+    .filter((it) => needsFill(epPath(opts.out, it.n)))
     .slice(0, Math.max(0, opts.limit));
 
   if (!missing.length) {
@@ -267,7 +264,7 @@ async function main() {
 
   let filled = 0;
   for (const it of missing) {
-    const file = path.join(opts.out, `EP${epId(it.n)}.md`);
+    const file = epPath(opts.out, it.n);
     let transcript = '';
     if (cfg && it.audioUrl) {
       try {
@@ -281,6 +278,7 @@ async function main() {
       console.log(`  [dry-run] 會寫 ${file}（${transcript ? '含轉錄' : '摘要 stub'}）`);
       continue;
     }
+    fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, toMarkdown(it, transcript), 'utf8');
     filled++;
     console.log(`  ✓ 寫入 ${path.basename(file)}（${transcript ? 'audio-transcribed' : 'pending-audio'}）`);

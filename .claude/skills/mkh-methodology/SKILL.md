@@ -14,11 +14,13 @@ description: 從股癌逐字稿抽取市場心法，整理成分時期方法論�
    - 參數是時期代號（如 `2025H1`）：查 `methodology/README.md` 的分期表取得集數範圍。
    - 參數是集數範圍（如 `EP476-EP525`）：直接使用。
    - 無參數：從 `methodology/README.md` 進度表挑最近一個未完成時期。
-   - 用 `grep '^date:' transcripts/EPxxx.md` 抽查邊界集數日期，確認分期正確。
+   - 用 `grep '^date:' transcripts/*/EPxxx.md` 抽查邊界集數日期，確認分期正確
+     （逐字稿每 50 集分一個子資料夾，如 `transcripts/EP601-650/EP626.md`）。
 
 2. **平行抽取**：以 **5 集為一批**（單集約 3 萬 tokens，5 集接近 agent 上下文上限，
    勿加大批次），每批派一個 `mkh-methodology-extractor` agent，
-   prompt 寫明確切檔案清單（如 `transcripts/EP626.md` ... `transcripts/EP630.md`）。
+   prompt 寫明確切檔案清單（如 `transcripts/EP601-650/EP626.md` ...
+   `transcripts/EP601-650/EP630.md`）。
    同一則訊息一次發出所有批次讓它們平行執行。
    - **模型下限**：抽取一律用 **Opus 4.8**（或 **Fable 5，medium 起跳**）以上，不可降階。
      agent 定義（`mkh-methodology-extractor.md`）已設 `model: opus`；若在 `Agent`／

@@ -13,20 +13,23 @@
 
 const fs = require('fs');
 const path = require('path');
+const { epId, chunkDirName } = require('./lib/chunk');
 
 const ROOT = __dirname;
 const TRANSCRIPTS_DIR = path.join(ROOT, 'transcripts');
 const README = path.join(ROOT, 'README.md');
 
-// 掃描 transcripts/，回傳集數與最新一集編號。
+// 掃描 transcripts/<EPxxx-yyy>/，回傳集數與最新一集編號。
 function scan() {
-  const nums = fs.readdirSync(TRANSCRIPTS_DIR)
-    .map(f => {
+  const nums = [];
+  for (const sub of fs.readdirSync(TRANSCRIPTS_DIR, { withFileTypes: true })) {
+    if (!sub.isDirectory()) continue;
+    for (const f of fs.readdirSync(path.join(TRANSCRIPTS_DIR, sub.name))) {
       const m = f.match(/^EP(\d+)\.md$/);
-      return m ? parseInt(m[1], 10) : null;
-    })
-    .filter(n => n !== null)
-    .sort((a, b) => a - b);
+      if (m) nums.push(parseInt(m[1], 10));
+    }
+  }
+  nums.sort((a, b) => a - b);
 
   if (nums.length === 0) throw new Error('transcripts/ 下找不到任何 EPxxx.md');
   return { count: nums.length, latest: nums[nums.length - 1] };
@@ -39,18 +42,14 @@ function replaceBetween(text, name, replacement) {
   return text.replace(re, `$1${replacement}$2`);
 }
 
-function epId(n) {
-  return 'EP' + String(n).padStart(3, '0');
-}
-
 function main() {
   const { count, latest } = scan();
-  const ep = epId(latest);
+  const ep = 'EP' + epId(latest);
 
   const before = fs.readFileSync(README, 'utf8');
   let after = before;
   after = replaceBetween(after, 'EP_TOTAL', `~${count} 集`);
-  after = replaceBetween(after, 'EP_LATEST', `[${ep}](transcripts/${ep}.md)`);
+  after = replaceBetween(after, 'EP_LATEST', `[${ep}](transcripts/${chunkDirName(latest)}/${ep}.md)`);
 
   if (after === before) {
     console.log(`README 已是最新：共 ${count} 集，最新 ${ep}`);

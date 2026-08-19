@@ -41,6 +41,7 @@
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
+const { epId, chunkDirName, epPath } = require('./lib/chunk');
 
 const BASE = 'https://whatmkreallysaid.com';
 const MANIFEST_URL = `${BASE}/pack_manifest.json`;
@@ -86,10 +87,6 @@ async function fetchManifest() {
 }
 
 // ── Markdown 產生 ───────────────────────────────────────────────────────────
-function epId(n) {
-  return String(n).padStart(3, '0'); // 補零至三碼 (EP001 … EP674)，方便依檔名排序
-}
-
 // YAML frontmatter 字串值跳脫（包雙引號，跳脫內部雙引號與反斜線）
 function yamlStr(s) {
   return '"' + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
@@ -167,10 +164,11 @@ async function main() {
 
   let written = 0, skipped = 0;
   for (const ep of episodes) {
-    const file = path.join(opts.out, `EP${epId(ep.n)}.md`);
+    const file = epPath(opts.out, ep.n);
     // 校對／補齊：只在「檔案不存在」或「是音訊搶快臨時版」時用網站版寫入；
     // 已是網站校對版與既有正式版都保留（除非 --force）。
     if (!opts.force && fs.existsSync(file) && !isProvisionalAudio(file)) { skipped++; continue; }
+    fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, toMarkdown(ep), 'utf8');
     written++;
   }
@@ -181,7 +179,7 @@ async function main() {
   indexLines.push(`共 ${episodes.length} 集。`, '', '| 集數 | 日期 | 標題 |', '| ---: | --- | --- |');
   for (const ep of episodes) {
     const title = (ep.t || '').replace(/\|/g, '\\|');
-    indexLines.push(`| [EP${ep.n}](EP${epId(ep.n)}.md) | ${ep.d || ''} | ${title} |`);
+    indexLines.push(`| [EP${ep.n}](${chunkDirName(ep.n)}/EP${epId(ep.n)}.md) | ${ep.d || ''} | ${title} |`);
   }
   fs.writeFileSync(path.join(opts.out, 'README.md'), indexLines.join('\n') + '\n', 'utf8');
 
