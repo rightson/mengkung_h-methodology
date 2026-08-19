@@ -15,15 +15,15 @@ Action 持續運行**，否則方法論會停在某一集。
   網站版**校對覆蓋**臨時稿以提高品質，再據以更新重點。
 
 ```
-① scrape.js   搶快  ──►  Podcast RSS（Apple / Spotify 索引的同一份 SoundOn RSS）
-                          ├─ 有設定轉錄後端：下載音檔 → Whisper 轉臨時逐字稿
-                          └─ 沒有設定：寫「節目摘要 (show notes) stub」暫存缺集
-                                     │  1~2 天後逐字稿站發布↓
-② fallback.js 校對  ──►  whatmkreallysaid.com 逐字稿資料包（第三方完整逐字稿）
-                          用網站版校對覆蓋音訊臨時版以提質；已是網站版／既有正式版不動。
+① scripts/scrape.js   搶快  ──►  Podcast RSS（Apple / Spotify 索引的同一份 SoundOn RSS）
+                                  ├─ 有設定轉錄後端：下載音檔 → Whisper 轉臨時逐字稿
+                                  └─ 沒有設定：寫「節目摘要 (show notes) stub」暫存缺集
+                                             │  1~2 天後逐字稿站發布↓
+② scripts/fallback.js 校對  ──►  whatmkreallysaid.com 逐字稿資料包（第三方完整逐字稿）
+                                  用網站版校對覆蓋音訊臨時版以提質；已是網站版／既有正式版不動。
 ```
 
-### ① `scrape.js`——Podcast 第一手音訊（搶快）
+### ① `scripts/scrape.js`——Podcast 第一手音訊（搶快）
 
 謝孟恭的原音就是節目本身，最快可得，故用來搶快出臨時稿。這支程式：
 
@@ -35,17 +35,17 @@ Action 持續運行**，否則方法論會停在某一集。
    - **有設定轉錄後端**：下載音檔 → 呼叫 OpenAI 相容的 `/audio/transcriptions` →
      寫入音檔轉錄的逐字稿（frontmatter 標 `source_type: podcast-audio`、
      `transcript_status: audio-transcribed`）。此為搶快臨時版，待逐字稿站發布後由
-     `fallback.js` 用網站版校對覆蓋提質。
+     `scripts/fallback.js` 用網站版校對覆蓋提質。
    - **沒有設定**：用 RSS 的節目摘要寫一份待補 stub（`transcript_status: pending-audio`），
-     並在 frontmatter 保留 `audio_url`，等日後設定轉錄後端或由 `fallback.js` 逐字稿站補上再升級。
+     並在 frontmatter 保留 `audio_url`，等日後設定轉錄後端或由 `scripts/fallback.js` 逐字稿站補上再升級。
 
 > 沒有任何 secret 也能持續運行（退化為摘要 stub），這樣 Action 才穩定不中斷；
 > 有 secret 時才做真正的 audio → 逐字稿。
 
 ```bash
-node scrape.js                # 掃描並補最新缺集（預設最多 5 集）
-node scrape.js --limit 3      # 最多只補最新的 N 集
-node scrape.js --dry-run      # 只印出會補哪些集，不寫檔
+node scripts/scrape.js                # 掃描並補最新缺集（預設最多 5 集）
+node scripts/scrape.js --limit 3      # 最多只補最新的 N 集
+node scripts/scrape.js --dry-run      # 只印出會補哪些集，不寫檔
 ```
 
 音訊逐字稿檔的 frontmatter 額外欄位：
@@ -76,7 +76,7 @@ node scrape.js --dry-run      # 只印出會補哪些集，不寫檔
 > YouTube 也是可行的音檔來源，但需額外依賴（如 `yt-dlp`）下載；目前搶快以 Podcast RSS
 > 為主（已同時涵蓋 Apple 與 Spotify），YouTube 保留為手動／未來選項。
 
-### ② `fallback.js`——逐字稿站校對（校對）
+### ② `scripts/fallback.js`——逐字稿站校對（校對）
 
 音訊搶快出的是臨時稿（Whisper 有辨識誤差；無後端或音檔超過 25MB 時甚至只有 stub）。
 約 1~2 天後逐字稿站 [whatmkreallysaid.com](https://whatmkreallysaid.com/) 發布該集，
@@ -107,19 +107,19 @@ browser。
 | `tx` | 逐字稿全文 |
 
 ```bash
-node fallback.js                 # 校對覆蓋音訊臨時版、補齊缺集，輸出到 ./transcripts
-node fallback.js --out ./out     # 自訂輸出目錄
-node fallback.js --force         # 即使檔案已存在也用網站版覆寫
+node scripts/fallback.js                 # 校對覆蓋音訊臨時版、補齊缺集，輸出到 ./transcripts
+node scripts/fallback.js --out ./out     # 自訂輸出目錄
+node scripts/fallback.js --force         # 即使檔案已存在也用網站版覆寫
 ```
 
 ## 輸出
 
 - `transcripts/EPxxx-yyy/EPzzz.md`：每集一份，含 YAML frontmatter＋摘要＋逐字稿。
   每 50 集分一個子資料夾（如 `EP001-050/`、`EP051-100/` …），避免單一資料夾塞近千個檔案；
-  子資料夾與集數的對應算法統一定義在 [`lib/chunk.js`](../lib/chunk.js)，
-  `scrape.js`／`fallback.js`／`update-readme.js` 都 require 這支模組取路徑，
-  未來集數增長會自動長出新的子資料夾，不需手動調整。集數補零至三碼，方便依檔名排序。
-- `transcripts/README.md`：`fallback.js` 依逐字稿站資料包（涵蓋全集）自動產生的索引表，
+  子資料夾與集數的對應算法統一定義在 [`scripts/chunk.js`](../scripts/chunk.js)，
+  `scripts/scrape.js`／`scripts/fallback.js`／`scripts/update-readme.js` 都 require
+  這支模組取路徑，未來集數增長會自動長出新的子資料夾，不需手動調整。集數補零至三碼，方便依檔名排序。
+- `transcripts/README.md`：`scripts/fallback.js` 依逐字稿站資料包（涵蓋全集）自動產生的索引表，
   連結已依子資料夾產生（如 `[EP1](EP001-050/EP001.md)`）。
 
 兩支程式都零外部依賴，只用 Node.js 18+ 內建的 `fetch` / `zlib` / `FormData`。
@@ -127,7 +127,7 @@ node fallback.js --force         # 即使檔案已存在也用網站版覆寫
 ## 自動更新
 
 [`.github/workflows/update-transcripts.yml`](../.github/workflows/update-transcripts.yml)
-依兩個節奏自動依序跑 `scrape.js`（音訊搶快）與 `fallback.js`（逐字稿站校對）：
+依兩個節奏自動依序跑 `scripts/scrape.js`（音訊搶快）與 `scripts/fallback.js`（逐字稿站校對）：
 
 - **音訊搶快**：台灣週三、週六晚 22:00（節目上架當晚，先出臨時稿）。
 - **網站校對**：台灣週一、週五晚 22:00（約晚 1~2 天，逐字稿站發布後校對提質）。

@@ -70,18 +70,18 @@ transcripts/EPxxx-yyy/EPxxx.md ──►  mkh-methodology-extractor（平行精�
 方法論要持續更新，就得有人不斷把最新一集的逐字稿餵進來。這件事交給一條會**透過 GitHub
 Action 持續運行**的兩段式管線——雖是配角，但不能不在。它以「搶快 → 校對」兼顧速度與品質：
 
-1. **`scrape.js`（搶快）**——節目上架當晚，從 Podcast RSS（Apple／Spotify 索引的同一份
+1. **`scripts/scrape.js`（搶快）**——節目上架當晚，從 Podcast RSS（Apple／Spotify 索引的同一份
    SoundOn 來源）取**第一手音檔**先轉出**臨時逐字稿**：有設定轉錄後端就下載音檔轉逐字稿，
    否則先寫節目摘要暫存。目的是讓重點最快整理出來。
-2. **`fallback.js`（校對）**——約 1~2 天後、逐字稿站
+2. **`scripts/fallback.js`（校對）**——約 1~2 天後、逐字稿站
    [whatmkreallysaid.com](https://whatmkreallysaid.com/)（第三方完整逐字稿）發布該集時，
    用網站版**校對覆蓋**音訊臨時版以提高品質，並補齊音訊完全拿不到的集數。
 
 細節（用法、frontmatter、如何啟用音檔轉錄）見 **[docs/scraper.md](docs/scraper.md)**。
 
 ```bash
-node scrape.js       # 搶快：Podcast 第一手音訊轉臨時稿
-node fallback.js     # 校對：逐字稿站覆蓋提質、補齊缺集
+node scripts/scrape.js       # 搶快：Podcast 第一手音訊轉臨時稿
+node scripts/fallback.js     # 校對：逐字稿站覆蓋提質、補齊缺集
 ```
 
 兩支程式零外部依賴，只需 Node.js 18+。自動更新由

@@ -43,7 +43,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { epPath } = require('./lib/chunk');
+const { epPath } = require('./chunk');
 
 // 《股癌》Gooaye 在 Apple Podcasts 的 collectionId；用來向 iTunes 查目前的 feedUrl，
 // 查不到時退回已知的 SoundOn RSS。
@@ -55,7 +55,7 @@ const APPLE_URL = `https://podcasts.apple.com/podcast/id${ITUNES_COLLECTION_ID}`
 // ── 參數解析 ────────────────────────────────────────────────────────────────
 function parseArgs(argv) {
   const opts = {
-    out: path.join(__dirname, 'transcripts'),
+    out: path.join(__dirname, '..', 'transcripts'),
     limit: 5,
     dryRun: false,
   };

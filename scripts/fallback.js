@@ -41,7 +41,7 @@
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
-const { epId, chunkDirName, epPath } = require('./lib/chunk');
+const { epId, chunkDirName, epPath } = require('./chunk');
 
 const BASE = 'https://whatmkreallysaid.com';
 const MANIFEST_URL = `${BASE}/pack_manifest.json`;
@@ -49,7 +49,7 @@ const PACK_URL = `${BASE}/transcripts.json.br`;
 
 // ── 參數解析 ────────────────────────────────────────────────────────────────
 function parseArgs(argv) {
-  const opts = { out: path.join(__dirname, 'transcripts'), force: false };
+  const opts = { out: path.join(__dirname, '..', 'transcripts'), force: false };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--out' || a === '-o') opts.out = argv[++i];

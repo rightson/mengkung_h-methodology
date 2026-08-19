@@ -13,9 +13,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const { epId, chunkDirName } = require('./lib/chunk');
+const { epId, chunkDirName } = require('./chunk');
 
-const ROOT = __dirname;
+const ROOT = path.join(__dirname, '..');
 const TRANSCRIPTS_DIR = path.join(ROOT, 'transcripts');
 const README = path.join(ROOT, 'README.md');
 

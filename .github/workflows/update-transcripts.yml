@@ -44,14 +44,14 @@ jobs:
           TRANSCRIBE_API_URL: ${{ secrets.TRANSCRIBE_API_URL }}
           TRANSCRIBE_MODEL: ${{ secrets.TRANSCRIBE_MODEL }}
           TRANSCRIBE_MAX_MB: ${{ secrets.TRANSCRIBE_MAX_MB }}
-        run: node scrape.js
+        run: node scripts/scrape.js
 
       - name: 校對——逐字稿站覆蓋提質
-        run: node fallback.js
+        run: node scripts/fallback.js
 
       - name: 同步 README 首頁——總集數與最新一集連結
         # 依 transcripts/ 現況更新根 README 的集數與最新集連結（冪等，內容一致就不動）。
-        run: node update-readme.js
+        run: node scripts/update-readme.js
 
       - name: 有變更則 commit 並 push
         run: |
